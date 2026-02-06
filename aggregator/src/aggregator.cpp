@@ -39,72 +39,6 @@ void Aggregator::on_book_updated(Connector* connector) {
     merge_books();
 }
 
-// void Aggregator::merge_books() {
-//     std::lock_guard<std::mutex> lock(consolidated_mutex_);
-//     consolidated_bids_.clear();
-//     consolidated_asks_.clear();
-
-//     auto merge = [](auto& target, const auto& source) {
-//         for (const auto& [price, qty] : source) {
-//             target[price] += qty;
-//         }
-//     };
-    
-//     merge(consolidated_bids_, binance_->get_bids_snapshot());
-//     merge(consolidated_asks_, binance_->get_asks_snapshot());
-
-//     merge(consolidated_bids_, okx_->get_bids_snapshot());
-//     merge(consolidated_asks_, okx_->get_asks_snapshot());
-
-//     merge(consolidated_bids_, bitget_->get_bids_snapshot());
-//     merge(consolidated_asks_, bitget_->get_asks_snapshot());
-
-//     merge(consolidated_bids_, bybit_->get_bids_snapshot());
-//     merge(consolidated_asks_, bybit_->get_asks_snapshot());
-
-//     aggregator::BookUpdate update;
-//     update.set_timestamp_ms(std::chrono::duration_cast<std::chrono::milliseconds>(
-//         std::chrono::system_clock::now().time_since_epoch()).count());
-
-//     // 通用 lambda：填充 bids 或 asks（限制 max_levels）
-//     auto fill_levels = [&](auto& consolidated, auto add_func, int max_levels) {
-//         int count = 0;
-//         for (const auto& [p, q] : consolidated) {
-//             if (count++ >= max_levels) break;
-//             auto* lvl = add_func(&update);
-//             lvl->set_price(p);
-//             lvl->set_quantity(q);
-//         }
-//     };
-   
-//     fill_levels(consolidated_bids_, [](auto* u) { return u->add_bids(); }, 100);
-//     fill_levels(consolidated_asks_, [](auto* u) { return u->add_asks(); }, 100);
-
-//     // 打印 Top 10（复用相同逻辑，避免重复代码）
-//     // std::cout << "\n>>> 合并后 Consolidated Book (Top 10) <<<\n";
-//     // std::cout << std::fixed << std::setprecision(2);
-//     bool if_print = 1;
-//     if(if_print){
-//         std::cout<<"-----------new--"<<std::endl;
-//         int max_lv = 50;
-//         int print_count = 0;  // 用不同的变量名，避免和上面冲突
-        
-//         for (const auto& [p, q] : consolidated_bids_) {
-//             if (print_count ++ >= max_lv) break;
-//             std::cout << "Bid:"<<max_lv - print_count + 1 << std::setw(12) << p << " @ " << q << "\n";
-//         }
-//         print_count = 0;
-        
-//         for (const auto& [p, q] : consolidated_asks_) {
-//             if (print_count++ >= max_lv) break;
-//             std::cout << "Ask:"<<print_count<< std::setw(12) << p << " @ " << q << "\n";
-//         }
-        
-//     }
-//     // std::cout << ">>>\n\n";
-//     service_.notify_all(update);
-// }
-
 void Aggregator::merge_books() {
     std::lock_guard<std::mutex> lock(consolidated_mutex_);
     consolidated_bids_.clear();
@@ -206,4 +140,5 @@ void AggregatorServiceImpl::notify_all(const aggregator::BookUpdate& update) {
         else ++it;
     }
     // std::cout<<"test3"<<std::endl;
+
 }
