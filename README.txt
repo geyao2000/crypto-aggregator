@@ -1,24 +1,42 @@
-#bash 
-mkdir build && cd build
-cmake ..
-make -j
-cp aggregator ../docker_build/
+# Crypto Orderbook Aggregator
 
-cd ../docker_build
-#docker build -t aggregator -f Dockerfile .
-docker build -t aggregator .
-docker run --rm -p 50051:50051 aggregator
-#or backend
-docker run -d --rm -p 50051:50051 --name aggregator aggregator
+Real-time aggregation of BTCUSDT orderbook data from multiple exchanges (Binance, OKX, Bitget, Bybit) with a unified gRPC streaming interface.
 
-#if "failed: port is already allocated", kill the process on that port or use another port
+## Overview
 
-#check running docker
-docker ps 
+This project aggregates depth updates from four major crypto exchanges and provides a single gRPC service for clients to subscribe to the merged orderbook (bids/asks). It supports:
 
-#stop docker 
-docker stop <CONTAINER ID>
+- Real-time incremental + snapshot updates
+- Standardized price/quantity precision
+- Multi-client support (BBO, volume bands, price bands)
 
-#delete all images
-docker images -aq | xargs -r docker rmi -f
+## Architecture
 
+- **aggregator**: gRPC server that subscribes to WebSocket feeds from exchanges, merges orderbooks, and streams updates on port 50051.
+- **client-bbo**: Best Bid/Offer client — subscribes and prints top bid/ask.
+- **client-volume-bands**: Volume bands client — monitors volume in price ranges.
+- **client-price-bands**: Price bands client — monitors price movements in ranges.
+
+Each component runs in its own Docker container. The system uses docker-compose for orchestration on a single host.
+
+## Tech Stack
+
+- C++17
+- gRPC v1.62.0 + Protobuf v3.25.3
+- Abseil LTS 20230802.1
+- Boost 1.74+ (system, thread)
+- nlohmann/json v3.11.3 (header-only)
+- WebSocket: Boost.Beast
+- Base OS: Ubuntu 22.04
+
+## Prerequisites
+
+- Docker & Docker Compose installed
+- Git
+
+## Build Instructions
+
+1. **Build the base image** (pre-compiled heavy dependencies — only needed once or when deps change)
+
+   ```bash
+   docker build -f dockerfile.base -t aggregator-base:latest .
