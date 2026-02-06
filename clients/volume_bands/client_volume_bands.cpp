@@ -1,4 +1,3 @@
-// client_volume_bands.cpp - Modified: Special output for 1k/10k/100k USD bands + full depth print
 #include <grpcpp/grpcpp.h>
 #include "aggregator.grpc.pb.h"
 #include "aggregator.pb.h"
@@ -9,8 +8,6 @@
 #include <ctime>
 #include <map>
 
-// int main() {
-
 int main(int argc, char** argv) {
     std::string target_str = "localhost:50051";
     if (argc > 1) {
@@ -19,9 +16,6 @@ int main(int argc, char** argv) {
     std::cout << "Connecting to: " << target_str << std::endl;
     auto channel = grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials());
     auto stub = aggregator::AggregatorService::NewStub(channel);
-
-    // auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
-    // auto stub = aggregator::AggregatorService::NewStub(channel);
 
     grpc::ClientContext context;
     aggregator::SubscribeRequest request;
@@ -136,4 +130,5 @@ int main(int argc, char** argv) {
         std::cerr << "RPC failed: " << status.error_message() << std::endl;
     }
     return 0;
+
 }
