@@ -1,4 +1,3 @@
-// client_bbo.cpp - BBO Publisher with timestamp converted to readable date/time (JST, since you're in Tokyo)
 #include <grpcpp/grpcpp.h>
 #include "aggregator.grpc.pb.h"
 #include "aggregator.pb.h"
@@ -15,9 +14,6 @@ int main(int argc, char** argv) {
     std::cout << "Connecting to: " << target_str << std::endl;
     auto channel = grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials());
     auto stub = aggregator::AggregatorService::NewStub(channel);
-
-    // auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
-    // auto stub = aggregator::AggregatorService::NewStub(channel);
 
     grpc::ClientContext context;
     aggregator::SubscribeRequest request;
@@ -68,4 +64,5 @@ int main(int argc, char** argv) {
         std::cerr << "RPC failed: " << status.error_message() << std::endl;
     }
     return 0;
+
 }
