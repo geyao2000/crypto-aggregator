@@ -11,12 +11,6 @@ Connector::Connector(Aggregator* aggregator, const std::string& name, double tic
     ctx_.set_default_verify_paths();
 }
 
-// Connector::~Connector() {
-//     running_ = false;
-//     if (thread_.joinable()) thread_.join();
-//     if (ping_thread_.joinable()) ping_thread_.join();
-// }
-
 Connector::~Connector() {
     std::cout << "[" << name_ << "] Destructor called, shutting down..." << std::endl;
     running_ = false;
@@ -200,3 +194,4 @@ void Connector::ping_loop() {
     }
     std::cout << "[" << name_ << "] Ping loop exited" << std::endl;
 }
+
