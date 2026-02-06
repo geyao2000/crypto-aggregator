@@ -1,0 +1,19 @@
+# 构建产物
+build/
+generated/
+*.o
+*.a
+*.so
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Docker 缓存
+Dockerfile.*
+docker-compose.yml.bak
+*.bak
+
+# 日志、临时文件
+*.log
+*.tmp
