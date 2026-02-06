@@ -36,9 +36,9 @@ Each component runs in its own Docker container. The system uses docker-compose 
 
 ## Build Instructions
 
-1. Build the base image (pre-compiled heavy dependencies — only needed once or when deps change)
+1. (Must run)Build the base image (pre-compiled heavy dependencies — only needed once or when deps change)
 
-    sudo docker build -f dockerfile.base -t aggregator-base:latest .
+    sudo docker build --no-cache -f docker/Dockerfile.base -t aggregator-base:v1.0.0 .
 
 2. Build aggregator server image
 
@@ -54,7 +54,7 @@ Each component runs in its own Docker container. The system uses docker-compose 
 
 	sudo docker network create my-trading-net
 	
-5. (Recommended) Use docker compose to build everything and start network at once 
+5. (Recommended, subsitute 2,3,4) Use docker compose to build everything and start network at once 
 
 	sudo docker compose up -d --build
 	
