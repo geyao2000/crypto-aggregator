@@ -10,7 +10,7 @@ protected:
     std::string port() const override { return "9443"; }
     std::string path() const override { return "/ws"; }
     std::string subscribe_message() const override {
-        return R"({"method":"SUBSCRIBE","params":["btcusdt@depth5@100ms"],"id":1})";
+        return R"({"method":"SUBSCRIBE","params":["btcusdt@depth20@100ms"],"id":1})";
         // return R"({"method":"SUBSCRIBE","params":["btcusdt@depth5@100ms"],"id":1})";
         // return R"({"method":"SUBSCRIBE","params":["btcusdt@depth20@100ms"],"id":1})";
         // 如果想 5 檔測試：R"({"method":"SUBSCRIBE","params":["btcusdt@depth5@100ms"],"id":1})"

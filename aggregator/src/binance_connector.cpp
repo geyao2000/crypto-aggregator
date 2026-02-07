@@ -21,12 +21,12 @@ void BinanceConnector::parse_message(const std::string& msg) {
         trimmed == "{\"pong\":true}" ||
         trimmed == "{\"event\":\"pong\"}" ||
         trimmed.rfind("pong", 0) == 0) {  // 以 "pong" 开头兜底
-        // 可选日志：std::cout << "[" << name_ << "] Ignored pong response" << std::endl;
+        std::cout << "[" << name_ << "] Ignored pong response" << std::endl;
         return;  // 直接返回，不解析
     }
     
     try {
-        // std::cout << "[Binance Debug] Raw message: " << msg << std::endl;  // 可选：调试时打开
+        std::cout << "[Binance Debug] Raw message: " << msg << std::endl;  // 可选：调试时打开
 
         json j = json::parse(msg);
 

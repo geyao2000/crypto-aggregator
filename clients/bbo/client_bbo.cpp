@@ -51,25 +51,30 @@ int main(int argc, char** argv) {
             std::cout << "\n=== BBO Update @ "
                       << std::put_time(&jst_tm, "%Y-%m-%d %H:%M:%S")
                       << '.' << std::setfill('0') << std::setw(3) << ms << " Local ===\n";
-
-            if (update.bids_size() > 0) {
-                const auto& best_bid = update.bids(0);
-                std::cout << "Best Bid:  " 
-                          << std::setw(12) << best_bid.price()
-                          << " @ " << std::setprecision(10) << best_bid.quantity() << "\n";
-            } else {
-                std::cout << "Best Bid:  ---\n";
-            }
-
+            
+            const auto& best_ask = update.asks(0);
+            const auto& best_bid = update.bids(0);
             if (update.asks_size() > 0) {
-                const auto& best_ask = update.asks(0);
-                std::cout << "Best Ask:  " 
-                          << std::setw(12) << best_ask.price()
-                          << " @ " << std::setprecision(10) << best_ask.quantity() << "\n";
+                std::cout << "Best Ask:  " ;
+                printf("\033[34m%10.2f\033[0m @ %13.8f \n",best_ask.price(),best_ask.quantity());
             } else {
                 std::cout << "Best Ask:  ---\n";
             }
 
+            if (update.bids_size() > 0) {
+                std::cout << "Best Bid:  ";
+                printf("\033[31m%10.2f\033[0m @ %13.8f",best_bid.price(),best_bid.quantity());
+                
+                if(best_bid.price()>best_ask.price()){
+                    double crossed = best_bid.price() - best_ask.price();
+                    printf(",   warning: crossed: %5.2f",crossed);
+                }
+                std::cout<<std::endl;
+            } else {
+                std::cout << "Best Bid:  ---\n";
+            }
+
+            
             std::cout << "========================================\n";
         }
 
