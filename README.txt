@@ -32,6 +32,11 @@ Each component runs in its own Docker container. The system uses docker-compose 
 ## Prerequisites
 
 - Docker & Docker Compose installed
+	
+	sudo apt update
+	sudo apt install docker.io=28.2.2-0ubuntu1~22.04.1
+	sudo apt install docker-compose-v2
+
 - Git
 
 ## Build Instructions
