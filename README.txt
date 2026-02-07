@@ -33,7 +33,7 @@ This project aggregates depth updates from major crypto exchanges and provides a
 - **client-volume-bands**: Volume bands client — monitors volume in price ranges.
 - **client-price-bands**: Price bands client — monitors price movements in ranges.
 
-Each component runs in its own Docker container. The system uses docker-compose for orchestration on a single host.
+	Each component runs in its own Docker container. The system uses docker-compose for orchestration on a single host.
 
 ## Tech Stack
 
@@ -52,9 +52,11 @@ Each component runs in its own Docker container. The system uses docker-compose 
 
 ## Build Instructions
 
-1. (Must run)Build the base image (pre-compiled heavy dependencies — only needed once or when deps change)
+1. Build the base image (pre-compiled heavy dependencies — only needed once or when deps change)
 
     sudo docker build --no-cache -f docker/Dockerfile.base -t aggregator-base:v1.0.0 .
+
+# go step 5 if docker composer installed
 
 2. Build aggregator server image
 
@@ -83,6 +85,7 @@ Each component runs in its own Docker container. The system uses docker-compose 
 	
 	# Starts aggregator server + all three clients.
 	# Clients automatically connect to aggregator:50051.
+	
 	# View status:
 	
 	sudo docker compose ps
@@ -91,7 +94,7 @@ Each component runs in its own Docker container. The system uses docker-compose 
 	
 	# Start aggregator server
 	
-	sudo docker run -d --name aggregator --network my-trading-net -p 50051:50051 aggregator-service:v1.0.5
+	sudo docker run -d --name aggregator --network my-trading-net -p 50051:50051 aggregator-service:v1.0.6
 	
 	# Start clients (connect to aggregator)
 	
