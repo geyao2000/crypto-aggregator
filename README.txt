@@ -1,19 +1,30 @@
-# Crypto Orderbook Aggregator
+---
 
-Real-time aggregation of BTCUSDT orderbook data from multiple exchanges (Binance, OKX, Bitget, Bybit) with a unified gRPC streaming interface.
+    +------------------+
+    |   Binance CEX    |
+    +------------------+
+             |
+    +------------------+
+    |     OKX CEX      |
+    +------------------+        +--------------------+
+             |                  |                    |
+    +------------------+ -----> |   Aggregator       | -----> gRPC -----> Clients
+    |    Bybit CEX     |        |   (Consolidator)   |                   (BBO, Bands)
+    +------------------+        |                    |
+             |                  +--------------------+
+    +------------------+
+    |   Additional CEX |
+    +------------------+
 
-	Binance: btcusdt@depth5@100ms
-	OKX:	boos5 BTC-USDT
-	Bitget:	SOT books50
-	Bybit:	orderbook.50.BTCUSDT
 
 ## Overview
 
-This project aggregates depth updates from four major crypto exchanges and provides a single gRPC service for clients to subscribe to the merged orderbook (bids/asks). It supports:
+This project aggregates depth updates from major crypto exchanges and provides a single gRPC service for clients to subscribe to the merged orderbook (bids/asks). It supports:
 
 - Real-time incremental + snapshot updates
 - Standardized price/quantity precision
 - Multi-client support (BBO, volume bands, price bands)
+- Fully containerized with Docker and Docker Compose
 
 ## Architecture
 
@@ -36,13 +47,8 @@ Each component runs in its own Docker container. The system uses docker-compose 
 
 ## Prerequisites
 
-- Docker & Docker Compose installed
-	
-	sudo apt update
-	sudo apt install docker.io=28.2.2-0ubuntu1~22.04.1
-	sudo apt install docker-compose-v2
-
 - Git
+- Docker & Docker Compose installed
 
 ## Build Instructions
 
@@ -97,33 +103,58 @@ Testing
 
 	1. Check server is running
 	
-	sudo docker logs -f aggregator
-	# Look for "Aggregator gRPC server running on port 50051"
+		sudo docker logs -f aggregator
+		# Look for "Aggregator gRPC server running on port 50051"
 
 	2. Test subscription (requires grpcurl)
 	
-	grpcurl -plaintext -d '{}' localhost:50051 aggregator.AggregatorService/SubscribeBook
-	#You should see real-time BookUpdate messages (timestamp_ms + bids/asks).
+		grpcurl -plaintext -d '{}' localhost:50051 aggregator.AggregatorService/SubscribeBook
+		#You should see real-time BookUpdate messages (timestamp_ms + bids/asks).
 
 	3. Check client logs
 	
-	sudo docker logs -f client-bbo
+		sudo docker logs -f client-bbo
 
 Technical Decisions
 
-	Multi-stage builds — Heavy compilation in builder stage, runtime image is minimal (~200MB).
+	1. OrderBook Data Structure in std::map instead of std::unordered_map
+
+		Efficiency in calculation: 
+			Red-Black Tree, automatically sorts keys (prices). consolidated_bids_ uses std::greater<double> to keep the highest bid at begin(), consolidated_asks_ uses the default ascending order to keep the lowest ask at begin(). More efficient calculation with price bands and volume bands. In contrast, an unordered_map would require a full O(N(log N)) sort for every update, which is prohibitive in low-latency systems.
+		
+		Memory Allocation Overhead: 
+			As a node-based container, std::map triggers a heap allocation (new) for every new price level, potentially leading to memory fragmentation and cache misses.
+		
+	2. Multi-threaded vs Boost.Beast/Asio
+		
+		Multiple CEX connector compete for consolidated_mutex_. gRPC streaming threads(BBO, Volume/Price Bands) lock mutex to read; under high market volatility, mutex contention becomes a significant bottleneck. Beast has: Asynchorous architecture, event-driven design, non-blocking model. Will apply in next version.
+			
+	3. Data process vs network load
 	
-	Pre-built base image (aggregator-base) — Contains compiled gRPC, Protobuf, Abseil, Boost etc. → fast incremental builds.
+		Aggregator only consolidate CEX's data, pushing stream to clients with no storing or processing. This simplicity makes the ultra fast speed and the architecture easier to maintain. Also it reduced resource overhead.
+		The high network load does reduce upper limit of the connectivity. However, here we have only  4 CEX and 3 clients. When the number goes up we will need to balance calculation and the bandwidth.
 	
-	Independent containers per service — Fault isolation, independent scaling/restart, clear logs/monitoring.
+	4. Multi-stage builds 
+		
+		Heavy compilation in builder stage, runtime image is minimal (~200MB). Pre-built base image (aggregator-base) — Contains compiled gRPC, Protobuf, Abseil, Boost etc. → fast incremental builds. 
+		
+		Independent containers per service — Fault isolation, independent scaling/restart, clear logs/monitoring.
+		
+	5. docker-compose 
 	
-	docker-compose — Single command to start everything, automatic dependency ordering (depends_on).
+		Single command to start everything, automatic dependency ordering (depends_on).
 	
-	Proto files generated at build time — Keeps source tree clean (generated in build/generated).
+	6. Proto files generated at build time 
 	
-	Static linking preference for heavy deps — Reduces runtime dependencies (though dynamic linking used here for compatibility).
+		Keeps source tree clean (generated in build/generated).
 	
-	Manual json.hpp download — Avoids FetchContent network issues in Docker.
+	7. Static linking preference for heavy deps 
+	
+		Reduces runtime dependencies (though dynamic linking used here for compatibility).
+	
+	8. Manual json.hpp download 
+	
+		Avoids FetchContent network issues in Docker.
 
 Dependencies
 
