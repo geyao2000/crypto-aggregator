@@ -2,6 +2,11 @@
 
 Real-time aggregation of BTCUSDT orderbook data from multiple exchanges (Binance, OKX, Bitget, Bybit) with a unified gRPC streaming interface.
 
+	Binance: btcusdt@depth5@100ms
+	OKX:	boos5 BTC-USDT
+	Bitget:	SOT books50
+	Bybit:	orderbook.50.BTCUSDT
+
 ## Overview
 
 This project aggregates depth updates from four major crypto exchanges and provides a single gRPC service for clients to subscribe to the merged orderbook (bids/asks). It supports:
