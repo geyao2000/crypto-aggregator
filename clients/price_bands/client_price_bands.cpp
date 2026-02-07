@@ -69,11 +69,14 @@ int main(int argc, char** argv) {
             double mid = (best_bid + best_ask) / 2.0;
 
             std::cout << std::fixed << std::setprecision(2);
-            std::cout << "BBO: Best Bid " << best_bid
-                    << " | Best Ask " << best_ask
-                    << " | Mid " << mid << "\n";
+            printf("BBO: Best Bid \033[31m%.2f\033[0m | Best Ask \033[34m%.2f\033[0m | Mid %.2f\n", best_bid, best_ask, mid);
+            // std::cout << "BBO: Best Bid " << best_bid
+            //         << " | Best Ask " << best_ask
+            //         << " | Mid " << mid << "\n";
             if (best_ask < best_bid) {
-                std::cout << "⚠️  WARNING: Crossed market detected! (Best Ask < Best Bid)\n\n";
+                double crossed = best_bid - best_ask;
+                std::cout << "⚠️  WARNING: Crossed market detected! ";
+                std::cout << crossed <<std::endl;
             }
             
             std::cout << "+ bps | Target Bid | Closest Bid |   Qty (BTC)  | Target Ask | Closest Ask | Qty (BTC)\n";
