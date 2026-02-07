@@ -54,31 +54,6 @@ int main(int argc, char** argv) {
 
         double mid = (best_bid + best_ask) / 2.0;
 
-        if(false){
-            // 打印前 10 档行情 + 累计 notional
-            std::cout << "Received Depth (Top 10 Bids - high to low):\n";
-            double cum_bid_notional = 0.0;
-            for (int i = 0; i < std::min(10, update.bids_size()); ++i) {
-                const auto& lvl = update.bids(i);
-                cum_bid_notional += lvl.price() * lvl.quantity();
-                // std::cout << "  Bid " << i+1 << ": " << lvl.price() << " @ " << lvl.quantity()
-                //           << "      Cumulative Notional: " << cum_bid_notional << " USD\n";
-                // 高精度打印 quantity（15 位小数）
-                std::cout << "  Bid " << i+1 << ": " << lvl.price() << " @ "
-                        << std::setprecision(15) << lvl.quantity()  // <--- 加这一行
-                        << std::fixed << std::setprecision(2) << "      Cumulative Notional: " << cum_bid_notional << " USD\n";
-            }
-
-            std::cout << "\nReceived Depth (Top 10 Asks - low to high):\n";
-            double cum_ask_notional = 0.0;
-            for (int i = 0; i < std::min(10, update.asks_size()); ++i) {
-                const auto& lvl = update.asks(i);
-                cum_ask_notional += lvl.price() * lvl.quantity();
-                std::cout << "  Ask " << i+1 << ": " << lvl.price() << " @ " << lvl.quantity()
-                        << "      Cumulative Notional: " << cum_ask_notional << " USD\n";
-            }
-        }
-
         // Volume Bands 计算函数（逐级检查）
         auto compute_volume_bands = [&](const auto& levels, bool is_bid) {
             double cum_notional = 0.0;
