@@ -51,22 +51,24 @@ int main(int argc, char** argv) {
         //               << std::fixed << std::setprecision(2) << lvl.price()
         //               << " @ " << std::fixed << std::setprecision(8) << lvl.quantity() << "\n";
         // }
-        // 打印 Asks（从高到低，反向遍历）
-        std::cout << "\nReceived Depth (Top " << max_print_level <<"\n";
-        int ask_count = std::min(max_print_level, update.asks_size());
-        for (int i = ask_count - 1; i >= 0; --i) {
-            const auto& lvl = update.asks(i);
-            std::cout << "  Ask " << i << ": "  // 重新编号，从 1 开始
-                    << std::fixed << std::setprecision(2) << lvl.price()
-                    << " @ " << std::fixed << std::setprecision(8) << lvl.quantity() << "\n";
-        }
-        std::cout << "------------------------" << "\n";
-        // std::cout << "\nReceived Depth (Top " << max_print_level << " Bids - high to low):\n";
-        for (int i = 0; i < std::min(max_print_level, update.bids_size()); ++i) {
-            const auto& lvl = update.bids(i);
-            std::cout << "  Bid " << i + 1 << ": "
-                      << std::fixed << std::setprecision(2) << lvl.price()
-                      << " @ " << std::fixed << std::setprecision(8) << lvl.quantity() << "\n";
+        if(0){
+            // 打印 Asks（从高到低，反向遍历）
+            std::cout << "\nReceived Depth (Top " << max_print_level <<")\n";
+            int ask_count = std::min(max_print_level, update.asks_size());
+            for (int i = ask_count - 1; i >= 0; --i) {
+                const auto& lvl = update.asks(i);
+                std::cout << "  Ask " << i + 1 << ": "  // 重新编号，从 1 开始
+                        << std::fixed << std::setprecision(2) << lvl.price()
+                        << " @ " << std::fixed << std::setprecision(8) << lvl.quantity() << "\n";
+            }
+            std::cout << "------------------------" << "\n";
+            // std::cout << "\nReceived Depth (Top " << max_print_level << " Bids - high to low):\n";
+            for (int i = 0; i < std::min(max_print_level, update.bids_size()); ++i) {
+                const auto& lvl = update.bids(i);
+                std::cout << "  Bid " << i + 1 << ": "
+                        << std::fixed << std::setprecision(2) << lvl.price()
+                        << " @ " << std::fixed << std::setprecision(8) << lvl.quantity() << "\n";
+            }
         }
 
         std::cout << "\n=== Price Bands Update @ "
