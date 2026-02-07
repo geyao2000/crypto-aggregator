@@ -8,14 +8,13 @@
 #include <vector>
 #include <limits>
 
-// int main() {
-
 int main(int argc, char** argv) {
     std::string target_str = "localhost:50051";
     if (argc > 1) {
         target_str = argv[1];
     }
     std::cout << "Connecting to: " << target_str << std::endl;
+    
     auto channel = grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials());
     auto stub = aggregator::AggregatorService::NewStub(channel);
 
@@ -39,37 +38,6 @@ int main(int argc, char** argv) {
         std::time_t tt = std::chrono::system_clock::to_time_t(jst_time_point);
         std::tm jst_tm = *std::localtime(&tt);
         auto ms = timestamp_ms % 1000;
-
-        
-        // ===== 打印前 20 档行情 =====
-        int max_print_level = 10;
-        
-        // std::cout << "\nReceived Depth (Top " << max_print_level << " Asks - low to high):\n";
-        // for (int i = 0; i < std::min(max_print_level, update.asks_size()); ++i) {
-        //     const auto& lvl = update.asks(i);
-        //     std::cout << "  Ask " << i + 1 << ": "
-        //               << std::fixed << std::setprecision(2) << lvl.price()
-        //               << " @ " << std::fixed << std::setprecision(8) << lvl.quantity() << "\n";
-        // }
-        if(0){
-            // 打印 Asks（从高到低，反向遍历）
-            std::cout << "\nReceived Depth (Top " << max_print_level <<")\n";
-            int ask_count = std::min(max_print_level, update.asks_size());
-            for (int i = ask_count - 1; i >= 0; --i) {
-                const auto& lvl = update.asks(i);
-                std::cout << "  Ask " << i + 1 << ": "  // 重新编号，从 1 开始
-                        << std::fixed << std::setprecision(2) << lvl.price()
-                        << " @ " << std::fixed << std::setprecision(8) << lvl.quantity() << "\n";
-            }
-            std::cout << "------------------------" << "\n";
-            // std::cout << "\nReceived Depth (Top " << max_print_level << " Bids - high to low):\n";
-            for (int i = 0; i < std::min(max_print_level, update.bids_size()); ++i) {
-                const auto& lvl = update.bids(i);
-                std::cout << "  Bid " << i + 1 << ": "
-                        << std::fixed << std::setprecision(2) << lvl.price()
-                        << " @ " << std::fixed << std::setprecision(8) << lvl.quantity() << "\n";
-            }
-        }
 
         std::cout << "\n=== Price Bands Update @ "
                   << std::put_time(&jst_tm, "%Y-%m-%d %H:%M:%S")
