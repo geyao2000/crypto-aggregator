@@ -26,8 +26,10 @@ void BitgetConnector::parse_message(const std::string& msg) {
     }
     
     try {
-        json j = json::parse(msg);
 
+        // std::cout << "[Bitget Debug] Raw message: " << msg << std::endl; 
+        json j = json::parse(msg);
+        
         // 订阅响应
         if (j.contains("code") && j["code"] == "0") {
            std::cout << "[Bitget] Subscription SUCCESS (books50)" << std::endl;
@@ -44,7 +46,7 @@ void BitgetConnector::parse_message(const std::string& msg) {
                     std::lock_guard<std::mutex> lock(book_mutex_);
                     local_bids_.clear();
                     local_asks_.clear();
-
+                    // std::cout<<"[Bitget Debug]"<<data["bids"][0]<<data["asks"][0]<<endl;
                     for (const auto& level : data["bids"]) {
                         double raw_price = std::stod(level[0].get<std::string>());
                         double price = standardize_price(raw_price, tick_size_,true);
@@ -58,6 +60,13 @@ void BitgetConnector::parse_message(const std::string& msg) {
                         double qty = std::stod(level[1].get<std::string>());
                         // printf("raw: %10.2f, ask: %10.2f,%.8f\n",raw_price,price,qty);
                         if (qty > 0.0) local_asks_[price] += qty;
+                    }
+                    if(0){
+                        std::cout<<"[Bitget Debug]\t";
+                        auto it = local_asks_.begin();
+                        std::cout<<it->first<<","<<it->second<<";";
+                        it = local_bids_.begin();
+                        std::cout<<it->first<<","<<it->second<<std::endl;
                     }
                 }
                 // lock结束

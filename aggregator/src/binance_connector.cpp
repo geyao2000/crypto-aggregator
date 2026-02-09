@@ -26,8 +26,8 @@ void BinanceConnector::parse_message(const std::string& msg) {
     }
     
     try {
-        std::cout << "[Binance Debug] Raw message: " << msg << std::endl;  // 可选：调试时打开
-
+        // std::cout << "[Binance Debug] Raw message: " << msg << std::endl;  // 可选：调试时打开
+        
         json j = json::parse(msg);
 
         // 订阅成功响应（{"result":null,"id":1} 或类似）
@@ -43,6 +43,7 @@ void BinanceConnector::parse_message(const std::string& msg) {
                 local_bids_.clear();
                 local_asks_.clear();
                 // std::cout<<"test4"<<std::endl;
+                // std::cout<<"[Binance Debug] "<<j["bids"][0]<<j["asks"][0]<<endl;
                 for (const auto& level : j["bids"]) {
                     double raw_price = std::stod(level[0].get<std::string>());
                     double price = standardize_price(raw_price, tick_size_,true);
@@ -58,6 +59,11 @@ void BinanceConnector::parse_message(const std::string& msg) {
                     // printf("raw: %10.2f, ask: %10.2f,%.8f\n",raw_price,price,qty);
                     if (qty > 0.0) local_asks_[price] += qty;
                 }
+                // std::cout<<"[Binance Debug]\t";
+                // auto it = local_asks_.begin();
+                // std::cout<<it->first<<","<<it->second<<";";
+                // it = local_bids_.begin();
+                // std::cout<<it->first<<","<<it->second<<std::endl;
             }
             if (aggregator_) {
                 aggregator_->on_book_updated(this);

@@ -22,13 +22,13 @@ void BybitConnector::parse_message(const std::string& msg) {
         trimmed == "{\"pong\":true}" ||
         trimmed == "{\"event\":\"pong\"}" ||
         trimmed.rfind("pong", 0) == 0) {  // 以 "pong" 开头兜底
-        // 可选日志：std::cout << "[" << name_ << "] Ignored pong response" << std::endl;
+        std::cout << "[" << name_ << "] Ignored pong response" << std::endl;
         return;  // 直接返回，不解析
     }
     try {
         // 可选调试打印（高频时建议注释，避免阻塞）
         // std::cout << "[Bybit] raw message received: " << msg << std::endl;
-
+        
         json j = json::parse(msg);
 
         // 订阅成功响应
@@ -50,7 +50,7 @@ void BybitConnector::parse_message(const std::string& msg) {
             if (j["type"] == "snapshot") {
                 local_bids_.clear();
                 local_asks_.clear();
-
+                // std::cout << "[Bybit Debug]"<<data["b"][0]<<data["a"][0]<<std::endl;
                 // bids
                 for (const auto& level : data["b"]) {
                     double raw_price = std::stod(level[0].get<std::string>());
@@ -73,6 +73,7 @@ void BybitConnector::parse_message(const std::string& msg) {
             // delta：增量更新（支持删除 qty="0"、更新、添加）
             else if (j["type"] == "delta") {
                 // delete / update bids
+                // std::cout << "[Bybit Debug]"<<j["b"][0]<<j["a"][0]<<std::endl;
                 for (const auto& level : data["b"]) {
                     double price = std::stod(level[0].get<std::string>());
                     double qty   = std::stod(level[1].get<std::string>());
@@ -95,6 +96,13 @@ void BybitConnector::parse_message(const std::string& msg) {
                         local_asks_[price] = qty;
                     }
                 }
+                //打印local_asks_第一个值
+                // std::cout<<"[Bybit Debug]\t";
+                // auto it = local_asks_.begin();
+                // std::cout<<it->first<<","<<it->second<<";";
+                // it = local_bids_.begin();
+                // std::cout<<it->first<<","<<it->second<<std::endl;
+                
             }
         }
         // 每次有效更新后通知聚合器（可加 print_book() 如果需要打印）

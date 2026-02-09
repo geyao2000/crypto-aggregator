@@ -25,6 +25,7 @@ void OKXConnector::parse_message(const std::string& msg) {
     }
     try {
         json j = json::parse(msg);
+        
         if (j.contains("event") && j["event"] == "subscribe") {
             std::cout << "[OKX] Subscription SUCCESS (books50)" << std::endl;
             return;
@@ -37,7 +38,7 @@ void OKXConnector::parse_message(const std::string& msg) {
                     std::lock_guard<std::mutex> lock(book_mutex_);
                     local_bids_.clear();
                     local_asks_.clear();
-
+                    // std::cout<<"[OKX Debug]"<<data["bids"][0]<<data["asks"][0]<<std::endl;
                     for (const auto& level : data["bids"]) {
                         // double raw_price = std::stod(level[0].get<std::string>());
                         // double price = standardize_price(raw_price, tick_size_,true);
@@ -57,12 +58,16 @@ void OKXConnector::parse_message(const std::string& msg) {
                         if (qty > 0.0) local_asks_[price] += qty;
                     }
                     // lock结束
+                    //打印local_asks_第一个值
+                    // std::cout<<"[OKX Debug]\t";
+                    // auto it = local_asks_.begin();
+                    // std::cout<<it->first<<","<<it->second<<";";
+                    // it = local_bids_.begin();
+                    // std::cout<<it->first<<","<<it->second<<std::endl;
                 }
                 if (aggregator_) {
                     aggregator_->on_book_updated(this);
                 }
-                // std::cout<<"[OKX]";
-                // print_book();
             }
         }
     } catch (const std::exception& e) {
